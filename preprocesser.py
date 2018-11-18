@@ -66,3 +66,12 @@ def getNGrams(text,N):
         index+=1;
     print(list);
 
+def getPosTags(text):
+            text = nltk.sent_tokenize(text);
+            treeBankWordTknzr=nltk.TreebankWordTokenizer();
+            tokens=[ nltk.pos_tag(treeBankWordTknzr.tokenize(sentance)) for sentance in text];
+            allTokens=[];
+            for i in tokens:
+                for j in i:
+                    allTokens.append(j);
+            return allTokens;

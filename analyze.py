@@ -58,18 +58,24 @@ def plotStopWordsFq(simple_text,printRes):
 def getPartOfSpeech(simple_text,printRes=False):
     categorized_text = nltk.pos_tag(simple_text);
     # NN, NNS |NNP, NNPS|JJ,JJR,JJS|RB,RBR,RBS|VB
-    categoriesCount = [0, 0, 0, 0, 0];
+    categoriesCount = [0, 0, 0, 0, 0,0,0,0];
     for i in categorized_text:
         if i[1] == "NN" or i[1] == "NNS":
             categoriesCount[0] += 1;
-        elif i[1] == "NNP" or i[1] == "NNPS":
+        if i[1] == "NNP" or i[1] == "NNPS":
             categoriesCount[1] += 1;
-        elif i[1] == "JJ" or i[1] == "JJR" or i[1] == "JJS":
+        if i[1] == "JJ" or i[1] == "JJR" or i[1] == "JJS":
             categoriesCount[2] += 1;
-        elif i[1] == "RB" or i[1] == "RBS" or i[1] == "RBS":
+        if i[1] == "RB" or i[1] == "RBS" or i[1] == "RBS":
             categoriesCount[3] += 1;
-        elif i[1].startswith("VB"):
+        if i[1].startswith("VB"):
             categoriesCount[4] += 1;
+        if i[1] == "NN" or i[1] == "NNS" or i[1]=="NNP" or i[1]=="NNPS":
+            categoriesCount[5] += 1;
+        if i[1]=="DT":
+            categoriesCount[6]+=1;
+        if i[1] == "IN":
+            categoriesCount[7] += 1;
 
     if(printRes):
         print(categoriesCount);
@@ -82,5 +88,55 @@ def plotPartsOfSpeechCount(text):
 
 def plotPieChart(slicesData,labels,legend=""):
     plotter.pie(slicesData, labels=labels, startangle=90, autopct='%.1f%%');
-    plotter.legend(legend);
+    plotter.title(legend);
     plotter.show();
+def intializeOrIncriment(hashMap,key):
+    if key in hashMap:
+        hashMap[key]+=1;
+    else:
+        hashMap[key]=1;
+
+def getNMostFrequentNouns(simple_text,n):
+
+    return getNMostElements(simple_text,n,"Nouns");
+
+def getNMostFrequentVerbs(simple_text,n):
+
+    return getNMostElements(simple_text,n,"Verbs");
+
+def getNMostPrepositions(simple_text,n):
+
+    return  getNMostElements(simple_text,n,"Prepos");
+
+def getNMostElements(simple_text,n,category):
+    categories_fq = getFrequenciesOfPOS(simple_text);
+    categories_fq[category] = categories_fq[category][:n];
+    return categories_fq[category];
+
+
+def getFrequenciesOfPOS(simple_text,printRes=False):
+    categories_fq = {"Nouns": {}, "Verbs": {}, "Prepos": {},"Delimeters":{}};
+
+    for i in simple_text:
+        if i[1] == "NN" or i[1] == "NNS" or i[1]=="NNP" or i[1]=="NNPS":
+            intializeOrIncriment(categories_fq["Nouns"], i[0]);
+        elif i[1] == "IN":
+            intializeOrIncriment(categories_fq['Prepos'], i[0]);
+        elif i[1].startswith("VB"):
+            intializeOrIncriment(categories_fq["Verbs"], i[0]);
+        elif i[1]=="DT":
+            intializeOrIncriment(categories_fq["Delimeters"], i[0]);
+
+    categories_fq["Nouns"] = list(categories_fq["Nouns"].items());
+    categories_fq["Verbs"] = list(categories_fq["Verbs"].items());
+    categories_fq["Prepos"] = list(categories_fq["Prepos"].items());
+    categories_fq["Delimeters"] = list(categories_fq["Delimeters"].items());
+
+    categories_fq["Nouns"] = sorted(categories_fq["Nouns"], key=lambda item: item[1], reverse=True);
+    categories_fq["Verbs"] = sorted(categories_fq["Verbs"], key=lambda item: item[1], reverse=True);
+    categories_fq["Prepos"] = sorted(categories_fq["Prepos"], key=lambda item: item[1], reverse=True);
+    categories_fq["Delimeters"] = sorted(categories_fq["Delimeters"], key=lambda item: item[1], reverse=True);
+
+    if(printRes):
+        print(categories_fq);
+    return categories_fq;
